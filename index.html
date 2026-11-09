@@ -273,15 +273,33 @@ footer .sm{max-width:32ch;margin:8px auto 0}
 </footer>
 </main>
 
+<audio id="bgm" src="music.mp3" preload="auto" loop playsinline></audio>
+
 <script>
 (function(){
 var $=function(s){return document.querySelector(s)};
 var gate=$('#gate'),root=document.documentElement;
 if(!gate)return;
 root.classList.add('lock');
+function playMusic(){
+  var bgm=$('#bgm');
+  if(!bgm)return;
+  bgm.volume=0;
+  var p=bgm.play();
+  var t0=null;
+  function fade(ts){
+    if(t0===null)t0=ts;
+    var k=Math.min(1,(ts-t0)/1600);
+    bgm.volume=k;
+    if(k<1)requestAnimationFrame(fade);
+  }
+  if(p&&p.then){p.then(function(){requestAnimationFrame(fade)}).catch(function(){})}
+  else{requestAnimationFrame(fade)}
+}
 function openGate(){
   if(gate.classList.contains('open'))return;
   gate.classList.add('open');
+  playMusic();
   root.classList.remove('lock');
   setTimeout(function(){if(gate.parentNode)gate.parentNode.removeChild(gate)},1750);
 }
